@@ -1,0 +1,101 @@
+# 로그 탐지 사용방법
+	※ 경로 설정시에 역슬래쉬(\) 는 2개씩 기재해야 함
+		C:\log\ -> C:\\log\\
+
+	※ JDK 1.8 버전 기준으로 작성하였으며, 1.7버전까지는 호환이 된다고는 함...
+
+
+
+1. 아래의 3개 파일을 같은 디렉토리에 넣어준다. (어디에 넣어주든 상관이 없음)
+	config.properties
+	start.bat
+	usearchLog.jar
+
+
+2. start.bat 파일을 열어서 현재 디렉토리의 경로를 기재한다
+	
+	ex)C:\log\ 가 현재 경로라고 한다면 아래와 같이 기재
+		java -jar C:\log\searchLog.jar
+
+
+3. config.properties 파일을 열어서 수정한다
+
+	dirPath : 분석할 로그폴더가 있는 위치
+		ex) 아래와 같이 아파치로그는 아파치 폴더에,
+			IIS 로그는 IIS 폴더에 있다고 한다면 공통 디렉토리까지만 기재한다.
+				C:\log\apache
+				C:\log\iis
+
+				dirPath = C:\\log\\
+
+	dirCount : 로그 디렉토리 갯수,
+		아파치, 톰캣, 리눅스, IIS 등 여러개의 로그를 동시에 할때 해당 디렉토리의 갯수를 기재
+
+	dirName1 , dirName2... : 디렉토리 이름
+		로그를 적재해놓은 디렉토리 이름을 기재하면 된다.
+		해당설정값은 dirCount보다 작으면 안된다.(오류발생)
+		또한 로그디렉토리가 많을경우 dirCount 를 디렉토리 갯수만큼지정해주고 dirCount5, dirCount...10 등으로 순차적으로 늘려서 기재한다.
+
+	moveCompleteLog : 분석완료된 로그들을 이동 (YES , NO )
+		해당 기능은 지속적으로 원본디렉토리에 로그를 추가할 때 사용
+		원본디렉토리에 있는 내용을 옮기지 않고 계속 작업하면 똑같은 파일에 대해서 중복적으로 작업을 하게 됨
+		
+	absoluteDir : 로그 분석 후 원본로그들을 저장할 위치를 기재한다.
+		해당경로는 상대경로로, dirPath 에 지정해준 디렉토리 밑에 생성된다.
+	
+		ex) 
+			absoluteDir  = complete_log 일경우
+			C:\log\complete_log 밑에 완료된 로그가 적재됨
+
+			C:\log\complete_log\securus 에 로그를 적재하고 싶은경우에는 아래와 같이 기재
+			absoluteDir  = complete_log\\securus 
+
+	
+	iisExceptString 
+	apacheExceptString
+	tomcatExceptString
+		위 세개는 로그 검색을 할때 라인에서 시작할 위치를 지정할 때 사용한다.
+			ex) 아래와 같이 로그가 적재된다고 했을때, 앞에 쓸모없는 부분을 자를때 사용한다.
+			마이크로소프트 www.microsoft.com - 80 - 192.168.0.8 https://securus.kr/login.php?id=???
+
+		또한 변수명은 위에 dirName 에서 기재한 이름을 앞에 적어서 생성, 수정 해주면 된다. 로그디렉토리 만큼 추가 할 수 있음, 꼭 존재 해야함
+			ex ) dirName5 = nginx
+				 ginxExceptString = ---nginx log
+
+		
+
+	iisBlackList = select,update,from,*,document,cookie,union,database,concat,char,count,lower,having,insert,delete,drop,column,instance,rand,limit,0x20,0x21,0x27,0x28,0x29,0x2A,0x2B,0x2D,0x2F,script,javascript,expression,vbscript,jscript,wscript,vbs,script,base64,applet,alert,document,write,cookie,window,confirm,prompt,eval,alert,prompt,confirm,applet,audio,basefont,base,behavior,bgsound,blink,body,embed,expression,form,frameset,frame,head,ilayer,iframe,input,button,select,isindex,layer,link,meta,keygen,object,plaintext,style,script,textarea,title,math,video,svg,xml,xss,%3c,%253c,%3e,%0e,%28,%29,%2528,%26,%24,%3f,%3b,%3d
+	apacheBlackList = select,update,from,*,document,cookie,union,database,concat,char,count,lower,having,insert,delete,drop,column,instance,rand,limit,0x20,0x21,0x27,0x28,0x29,0x2A,0x2B,0x2D,0x2F,script,javascript,expression,vbscript,jscript,wscript,vbs,script,base64,applet,alert,document,write,cookie,window,confirm,prompt,eval,alert,prompt,confirm,applet,audio,basefont,base,behavior,bgsound,blink,body,embed,expression,form,frameset,frame,head,ilayer,iframe,input,button,select,isindex,layer,link,meta,keygen,object,plaintext,style,script,textarea,title,math,video,svg,xml,xss,%3c,%253c,%3e,%0e,%28,%29,%2528,%26,%24,%3f,%3b,%3d
+	tomcatBlackList = ...
+		위 세개는 로그 검색을 할때 검출할 단어를 지정할 때 사용한다.
+		또한 변수명은 위에 dirName 에서 기재한 이름을 앞에 적어서 생성, 수정 해주면 된다. 로그디렉토리 만큼 추가 할 수 있음, 꼭 존재 해야함
+			ex ) dirName5 = nginx
+				 ginxExceptString = ---nginx log
+		
+
+
+
+4. 설정이 완료되면 분석할 로그디렉토리들을 dirPath에 지정한 경로밑으로 옮겨준다.
+
+
+5. start.bat 파일 실행
+
+
+6. 분석 로그 적재 위치
+	
+	ex ) 아래와 같이 로그들을 적재해 놓았을 경우
+		C:\log\iis
+		C:\log\apache
+		C:\log\tomcat
+
+	
+	분석 결과 : 각 로그디렉토리별, 오늘 월로 저장됨
+		C:\log\apache\202009\20200917_analysis_log.txt
+		C:\log\iis\202009\20200917_analysis_log.txt
+		C:\log\tomcat\202009\20200917_analysis_log.txt
+
+	분석 완료한 로그 : 아래와 같이 로그별로 저장이 됨
+		C:\log\complete_log\apache
+		C:\log\complete_log\iis
+		C:\log\complete_log\tomcat
+
